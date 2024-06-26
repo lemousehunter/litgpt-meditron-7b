@@ -213,7 +213,6 @@ def main(
     # strict=False because missing keys due to LoRA weights not contained in state dict
     load_checkpoint(fabric, model, checkpoint_path, strict=False)
 
-    fabric.print("Starting training")
     train_time = time.perf_counter()
     fit(
         fabric,
@@ -284,6 +283,7 @@ def fit(
         validate(fabric, model, val_dataloader, dataclasses.replace(eval, max_iters=2), verbose=False)  # sanity check
         val_loss = "n/a"
 
+    fabric.print("Starting training")
     train_iterator = CycleIterator(train_dataloader)
     throughput = ThroughputMonitor(fabric, window_size=50)
     running_loss = RunningMean(window=train.gradient_accumulation_iters(devices), sync_on_compute=False).to(
