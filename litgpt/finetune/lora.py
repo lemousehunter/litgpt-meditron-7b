@@ -65,8 +65,8 @@ def setup(
     train: TrainArgs = TrainArgs(
         save_interval=1000,
         log_interval=1,
-        global_batch_size=16,
-        micro_batch_size=1,
+        global_batch_size=64,
+        micro_batch_size=2,
         lr_warmup_steps=100,
         epochs=5,
         max_seq_length=None,
@@ -267,6 +267,8 @@ def fit(
     data: DataModule,
 ) -> None:
     tokenizer = Tokenizer(checkpoint_dir)
+
+    fabric.print("Getting longest seq length...")
     longest_seq_length, longest_seq_ix = get_longest_seq_length(ConcatDataset([train_dataloader.dataset, val_dataloader.dataset]))
     model.max_seq_length = min(longest_seq_length, train.max_seq_length or float("inf"))
     fabric.print(
