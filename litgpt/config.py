@@ -1660,7 +1660,6 @@ meditron = [
         name="epflllm_meditron-7b-base",
         hf_config=dict(org="lemousehunter", name="epflllm_meditron-7b-base"),
         vocab_size=32017,
-        padding_multiple=64,
         n_layer=32,
         rotary_percentage=1.0,
         parallel_residual=False,
