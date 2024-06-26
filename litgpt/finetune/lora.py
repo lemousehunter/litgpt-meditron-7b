@@ -175,7 +175,10 @@ def main(
 ) -> None:
     validate_args(train, eval)
 
+    fabric.print("Loading Tokenizer...")
     tokenizer = Tokenizer(checkpoint_dir)
+
+    fabric.print("Getting dataloaders...")
     train_dataloader, val_dataloader = get_dataloaders(fabric, data, tokenizer, train)
     steps_per_epoch = len(train_dataloader) // train.gradient_accumulation_iters(devices)
     lr_max_steps = min(train.epochs * steps_per_epoch, (train.max_steps or float("inf")))
@@ -185,6 +188,7 @@ def main(
     if fabric.global_rank == 0:
         os.makedirs(out_dir, exist_ok=True)
 
+    fabric.print("Initializing Model...")
     checkpoint_path = checkpoint_dir / "lit_model.pth"
     with fabric.init_module(empty_init=(devices > 1)):
         model = GPT(config)
