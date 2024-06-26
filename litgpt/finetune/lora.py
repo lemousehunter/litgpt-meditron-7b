@@ -22,7 +22,7 @@ from torchmetrics import RunningMean
 
 from litgpt.args import EvalArgs, TrainArgs
 from litgpt.data import DataModule
-from litgpt_train.data import MedInstructAlign
+from litgpt.data import MedInstructAlign
 from litgpt.generate.base import generate
 from litgpt.lora import GPT, Block, Config, lora_filter, mark_only_lora_as_trainable
 from litgpt.prompts import save_prompt_style
