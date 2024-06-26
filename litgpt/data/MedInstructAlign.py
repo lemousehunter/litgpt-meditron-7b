@@ -89,6 +89,7 @@ class MedInstructAlign(DataModule):
             mask_prompt=self.mask_prompt,
             ignore_index=self.ignore_index,
         )
+
         self.test_dataset = SFTDataset(
             data=test_data,
             tokenizer=self.tokenizer,
@@ -133,7 +134,7 @@ def format_dataset(dataset: Dataset) -> List[dict]:
 
     to_remove = dataset.column_names
 
-    dataset = dataset.map(_format, remove_columns=dataset.column_names, num_proc=4)
+    dataset = dataset.map(_format, remove_columns=to_remove, num_proc=4)
 
     formatted: List[dict] = dataset.to_list()
 
