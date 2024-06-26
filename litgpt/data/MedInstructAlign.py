@@ -1,5 +1,7 @@
 # Copyright Lightning AI. Licensed under the Apache License 2.0, see LICENSE file.
 """Implementation derived from https://github.com/tloen/alpaca-lora"""
+import os
+
 """Modified for MedInstructAlign dataset by github.com/lemousehunter 26 June 24"""
 
 from dataclasses import dataclass, field
@@ -13,6 +15,9 @@ from torch.utils.data import DataLoader
 from litgpt import PromptStyle
 from litgpt.data import DataModule, SFTDataset, get_sft_collate_fn
 from litgpt.tokenizer import Tokenizer
+
+
+NUM_PROC = os.cpu_count()
 
 
 class MedInstructAlignRow(TypedDict):
@@ -42,7 +47,7 @@ class MedInstructAlign(DataModule):
     """The index to use for elements to be ignored in the label."""
     seed: int = 42
     """The random seed for shuffling the dataset."""
-    num_workers: int = 4
+    num_workers: int = NUM_PROC
     """How many DataLoader processes to use for loading."""
     include_multiturn_conversations: bool = False
     """Whether to include multi-turn conversations in the dataset."""
@@ -134,7 +139,7 @@ def format_dataset(dataset: Dataset) -> List[dict]:
 
     to_remove = dataset.column_names
 
-    dataset = dataset.map(_format, remove_columns=to_remove, num_proc=4)
+    dataset = dataset.map(_format, remove_columns=to_remove, num_proc=NUM_PROC)
 
     formatted: List[dict] = dataset.to_list()
 
