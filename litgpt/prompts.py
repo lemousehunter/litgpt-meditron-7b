@@ -258,38 +258,35 @@ class Llama3(PromptStyle):
 class MedInstruct(PromptStyle):
     def apply(self, prompt: Union[str, List[Dict[str, str]]], **kwargs: str) -> str:
         bos_token = "<s>"
-        if isinstance(prompt, str):
-            raise Exception("MedInstruct prompt style requires 3 keys - instruction, input, output")
-        elif isinstance(prompt, list):
-            instruct_template = (
-                "<|im_start|>System:\n"
-                "{instruction}<|im_end|>\n"
-            )
-            input_template = (
-                "<|im_start|>Input\n"
-                "{input}<|im_end|>\n"
-            )
-            output_template = (
-                "<|im_start|>Output\n"
-                "{output}<|im_end|>"
-            )
 
-            instruction = ""
-            _input = ""
-            output = ""
+        if "output" not in kwargs.keys() or "input" not in kwargs.keys():
+            raise ValueError("Missing 'input' or 'output' in kwargs")
 
-            for item in prompt:
-                role, content = item["role"], item["content"]
-                if role == "output":
-                    _input = output_template.format(input=content)
-                elif role == "input":
-                    output += input_template.format(output=content)
-                elif role == "instruction":
-                    instruction = instruct_template.format(instruction=content)
-                else:
-                    raise ValueError(f"Unknown role: '{role}'. Supported roles are 'input', 'output' and 'instruction'")
+        instruct_template = (
+            "<|im_start|>System:\n"
+            "{instruction}<|im_end|>\n"
+        )
+        input_template = (
+            "<|im_start|>Input\n"
+            "{input}<|im_end|>\n"
+        )
+        output_template = (
+            "<|im_start|>Output\n"
+            "{output}<|im_end|>"
+        )
 
-            return bos_token + instruction + _input + output
+        instruction = ""
+        _input = ""
+        output = ""
+
+        # to get input, output columns, we get it from kwargs['input'], kwargs['output']
+        _input = output_template.format(input=kwargs['input'])
+        output += input_template.format(output=kwargs['output'])
+
+        # prompt is essentially the instruction
+        instruction = instruct_template.format(instruction=prompt)
+
+        return bos_token + instruction + _input + output
 
     def stop_tokens(self, tokenizer: "Tokenizer") -> Tuple[List[int], ...]:
         return (

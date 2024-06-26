@@ -20,21 +20,6 @@ from litgpt.tokenizer import Tokenizer
 NUM_PROC = os.cpu_count()
 
 
-class MedInstructAlignRow(TypedDict):
-    input: str
-    output: str
-    instruction: str
-
-
-class Message(TypedDict):
-    role: str
-    content: str
-
-
-class MedInstructAlignFormattedRow(TypedDict):
-    messages: List[Message]
-
-
 @dataclass
 class MedInstructAlign(DataModule):
     """MedInstructAlign data module for supervised finetuning (domain adaptation)."""
@@ -124,22 +109,9 @@ class MedInstructAlign(DataModule):
         )
 
 
-def _format(dataset_row: MedInstructAlignRow) -> MedInstructAlignFormattedRow:
-    formatted_row: MedInstructAlignFormattedRow = dict(messages=[])
-
-    for col in dataset_row.keys():
-        formatted_row['messages'].append({"role": col, "content": dataset_row[str(col)]})
-
-    return formatted_row
-
-
 def format_dataset(dataset: Dataset) -> List[dict]:
     if "system" in dataset.column_names and "instruction" not in dataset.column_names:
         dataset = dataset.rename_columns({"system": "instruction"})
-
-    to_remove = dataset.column_names
-
-    dataset = dataset.map(_format, remove_columns=to_remove, num_proc=NUM_PROC)
 
     formatted: List[dict] = dataset.to_list()
 
