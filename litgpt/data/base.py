@@ -80,7 +80,6 @@ class SFTDataset(Dataset):
             example = self.transform(example)
         prompt = self.prompt_style.apply(prompt=example["instruction"], **example)
         prompt_and_response = prompt + example["output"]
-        encoded_prompt = self.tokenizer.encode(prompt, max_length=self.max_seq_length)
         encoded_prompt_and_response = self.tokenizer.encode(
             prompt_and_response, eos=True, max_length=self.max_seq_length
         )
@@ -88,6 +87,7 @@ class SFTDataset(Dataset):
         # The labels are the full prompt with response, but with the prompt masked out
         labels = encoded_prompt_and_response.clone()
         if self.mask_prompt:
+            encoded_prompt = self.tokenizer.encode(prompt, max_length=self.max_seq_length)
             labels[: len(encoded_prompt)] = self.ignore_index
 
         return {"input_ids": encoded_prompt_and_response.type(torch.int64), "labels": labels.type(torch.int64)}
