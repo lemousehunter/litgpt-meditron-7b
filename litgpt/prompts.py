@@ -257,33 +257,8 @@ class Llama3(PromptStyle):
 
 class MedInstruct(PromptStyle):
     def apply(self, prompt: Union[str, List[Dict[str, str]]], **kwargs: str) -> str:
-        bos_token = "<s>"
 
-        if "input" not in kwargs.keys():
-            raise ValueError("Missing 'input' column in the dataset.")
-
-        instruct_template = (
-            "<|im_start|>Instruction:\n"
-            "{instruction}<|im_end|>\n"
-        )
-
-        input_template = (
-            "<|im_start|>Input\n"
-            "{input}<|im_end|>\n"
-        )
-
-        output_start = (
-            "<|im_start|>Output\n"
-        )
-
-        # to get input columns, we get it from kwargs['input']
-        _input = input_template.format(input=kwargs['input'])
-
-        # prompt is essentially the instruction
-        instruction = instruct_template.format(instruction=prompt)
-
-        # output is added in litgpt.base.data.SFTDataset.__getitem__() method
-        return bos_token + instruction + _input + output_start
+        return f"<s><|im_start|>Instruction:\n{prompt}<|im_end|>\n<|im_start|>Input\n{kwargs['input']}<|im_end|>\n<|im_start|>Output\n"
 
     def stop_tokens(self, tokenizer: "Tokenizer") -> Tuple[List[int], ...]:
         return (
