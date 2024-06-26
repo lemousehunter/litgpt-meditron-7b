@@ -1,4 +1,7 @@
 # Copyright Lightning AI. Licensed under the Apache License 2.0, see LICENSE file.
+"""Adapted from https://github.com/Lightning-AI/litgpt/blob/main/litgpt/finetune/lora.py for
+Meditron-7b-MedInstructAlign"""
+
 import dataclasses
 import math
 import os
@@ -18,7 +21,8 @@ from torch.utils.data import DataLoader, ConcatDataset
 from torchmetrics import RunningMean
 
 from litgpt.args import EvalArgs, TrainArgs
-from litgpt.data import Alpaca, DataModule
+from litgpt.data import DataModule
+from litgpt_train.data import MedInstructAlign
 from litgpt.generate.base import generate
 from litgpt.lora import GPT, Block, Config, lora_filter, mark_only_lora_as_trainable
 from litgpt.prompts import save_prompt_style
@@ -90,7 +94,7 @@ def setup(
         lora_projection: Whether to apply LoRA to the output projection in the attention block.
         lora_mlp: Whether to apply LoRA to the weights of the MLP in the attention block.
         lora_head: Whether to apply LoRA to output head in GPT.
-        data: Data-related arguments. If not provided, the default is ``litgpt.data.Alpaca``.
+        data: Data-related arguments. If not provided, the default is ``litgpt_train.data.MedInstructAlign``.
         train: Training-related arguments. See ``litgpt.args.TrainArgs`` for details.
         eval: Evaluation-related arguments. See ``litgpt.args.EvalArgs`` for details.
         optimizer: An optimizer name (such as "AdamW") or config.
@@ -99,7 +103,7 @@ def setup(
     """
     checkpoint_dir = extend_checkpoint_dir(checkpoint_dir)
     pprint(locals())
-    data = Alpaca() if data is None else data
+    data = MedInstructAlign() if data is None else data
     devices = parse_devices(devices)
     out_dir = init_out_dir(out_dir)
 

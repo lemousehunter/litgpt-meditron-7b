@@ -16,7 +16,7 @@ from litgpt.data.tinyllama import TinyLlama
 from litgpt.data.tinystories import TinyStories
 from litgpt.data.openwebtext import OpenWebText
 from litgpt.data.microllama import MicroLlama
-
+from litgpt_train.data.MedInstructAlign import MedInstructAlign
 
 __all__ = [
     "Alpaca",
@@ -37,4 +37,5 @@ __all__ = [
     "TinyStories",
     "MicroLlama"
     "get_sft_collate_fn",
+    "MedInstructAlign"
 ]
