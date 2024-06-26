@@ -108,6 +108,10 @@ def setup(
     out_dir = init_out_dir(out_dir)
 
     check_valid_checkpoint_dir(checkpoint_dir)
+
+    if not (checkpoint_dir / "model_config.yaml").is_file():
+        raise FileNotFoundError(f"model_config.yaml not found in {checkpoint_dir}")
+
     config = Config.from_file(
         checkpoint_dir / "model_config.yaml",
         lora_r=lora_r,
