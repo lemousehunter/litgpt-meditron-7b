@@ -259,34 +259,31 @@ class MedInstruct(PromptStyle):
     def apply(self, prompt: Union[str, List[Dict[str, str]]], **kwargs: str) -> str:
         bos_token = "<s>"
 
-        if "output" not in kwargs.keys() or "input" not in kwargs.keys():
-            raise ValueError("Missing 'input' or 'output' in kwargs")
+        if "input" not in kwargs.keys():
+            raise ValueError("Missing 'input' column in the dataset.")
 
         instruct_template = (
-            "<|im_start|>System:\n"
+            "<|im_start|>Instruction:\n"
             "{instruction}<|im_end|>\n"
         )
+
         input_template = (
             "<|im_start|>Input\n"
             "{input}<|im_end|>\n"
         )
-        output_template = (
+
+        output_start = (
             "<|im_start|>Output\n"
-            "{output}<|im_end|>"
         )
 
-        instruction = ""
-        _input = ""
-        output = ""
-
-        # to get input, output columns, we get it from kwargs['input'], kwargs['output']
-        _input = output_template.format(input=kwargs['input'])
-        output += input_template.format(output=kwargs['output'])
+        # to get input columns, we get it from kwargs['input']
+        _input = input_template.format(input=kwargs['input'])
 
         # prompt is essentially the instruction
         instruction = instruct_template.format(instruction=prompt)
 
-        return bos_token + instruction + _input + output
+        # output is added in litgpt.base.data.SFTDataset.__getitem__() method
+        return bos_token + instruction + _input + output_start
 
     def stop_tokens(self, tokenizer: "Tokenizer") -> Tuple[List[int], ...]:
         return (
