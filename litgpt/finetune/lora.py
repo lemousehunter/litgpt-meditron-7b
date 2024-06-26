@@ -193,8 +193,10 @@ def main(
     fabric.print(f"Number of trainable parameters: {num_parameters(model, requires_grad=True):,}")
     fabric.print(f"Number of non-trainable parameters: {num_parameters(model, requires_grad=False):,}")
 
+    fabric.print("Setting up model")
     model = fabric.setup_module(model)
 
+    fabric.print("Setting up optimizer")
     if isinstance(fabric.strategy.precision, BitsandbytesPrecision):
         optimizer = instantiate_bnb_optimizer(optimizer, model.parameters())
     else:
@@ -203,9 +205,11 @@ def main(
     optimizer = fabric.setup_optimizers(optimizer)
     scheduler = get_lr_scheduler(optimizer, warmup_steps=train.lr_warmup_steps, max_steps=lr_max_steps)
 
+    fabric.print("Loading checkpoint")
     # strict=False because missing keys due to LoRA weights not contained in state dict
     load_checkpoint(fabric, model, checkpoint_path, strict=False)
 
+    fabric.print("Starting training")
     train_time = time.perf_counter()
     fit(
         fabric,
