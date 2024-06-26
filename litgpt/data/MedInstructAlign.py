@@ -21,7 +21,7 @@ class MedInstructAlign(DataModule):
 
     mask_prompt: bool = False
     """Whether to mask the prompt section from the label (with ``ignore_index``)."""
-    prompt_style: Union[str, PromptStyle] = "alpaca"
+    prompt_style: Union[str, PromptStyle] = "chatml"
     """The style to apply to instruction prompts. See `litgpt.prompts` for a list of available styles."""
     ignore_index: int = -100
     """The index to use for elements to be ignored in the label."""
