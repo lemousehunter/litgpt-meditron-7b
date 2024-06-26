@@ -255,6 +255,48 @@ class Llama3(PromptStyle):
         )
 
 
+class MedInstruct(PromptStyle):
+    def apply(self, prompt: Union[str, List[Dict[str, str]]], **kwargs: str) -> str:
+        bos_token = "<s>"
+        if isinstance(prompt, str):
+            raise Exception("MedInstruct prompt style requires 3 keys - instruction, input, output")
+        elif isinstance(prompt, list):
+            instruct_template = (
+                "<|im_start|>System:\n"
+                "{instruction}<|im_end|>\n"
+            )
+            input_template = (
+                "<|im_start|>Input\n"
+                "{input}<|im_end|>\n"
+            )
+            output_template = (
+                "<|im_start|>Output\n"
+                "{output}<|im_end|>"
+            )
+
+            instruction = ""
+            _input = ""
+            output = ""
+
+            for item in prompt:
+                role, content = item["role"], item["content"]
+                if role == "output":
+                    _input = output_template.format(input=content)
+                elif role == "input":
+                    output += input_template.format(output=content)
+                elif role == "instruction":
+                    instruction = instruct_template.format(instruction=content)
+                else:
+                    raise ValueError(f"Unknown role: '{role}'. Supported roles are 'input', 'output' and 'instruction'")
+
+            return bos_token + instruction + _input + output
+
+    def stop_tokens(self, tokenizer: "Tokenizer") -> Tuple[List[int], ...]:
+        return (
+            [tokenizer.eos_id],
+        )
+
+
 class FreeWilly2(PromptStyle):
     def apply(self, prompt: str, **kwargs: str) -> str:
         return (
@@ -356,6 +398,7 @@ prompt_styles: Dict[str, Type[PromptStyle]] = {
     "gemma": Gemma,
     "h2oai": H2Oai,
     "llama3": Llama3,
+    "med-instruct": MedInstruct,
 }
 
 

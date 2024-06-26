@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, TypedDict
 
 import torch
 from datasets import DatasetDict, Dataset
@@ -15,13 +15,28 @@ from litgpt.data import DataModule, SFTDataset, get_sft_collate_fn
 from litgpt.tokenizer import Tokenizer
 
 
+class MedInstructAlignRow(TypedDict):
+    input: str
+    output: str
+    instruction: str
+
+
+class Message(TypedDict):
+    role: str
+    content: str
+
+
+class MedInstructAlignFormattedRow(TypedDict):
+    messages: List[Message]
+
+
 @dataclass
 class MedInstructAlign(DataModule):
     """MedInstructAlign data module for supervised finetuning (domain adaptation)."""
 
     mask_prompt: bool = False
     """Whether to mask the prompt section from the label (with ``ignore_index``)."""
-    prompt_style: Union[str, PromptStyle] = "chatml"
+    prompt_style: Union[str, PromptStyle] = "med-instruct"
     """The style to apply to instruction prompts. See `litgpt.prompts` for a list of available styles."""
     ignore_index: int = -100
     """The index to use for elements to be ignored in the label."""
@@ -103,8 +118,23 @@ class MedInstructAlign(DataModule):
         )
 
 
+def _format(dataset_row: MedInstructAlignRow) -> MedInstructAlignFormattedRow:
+    formatted_row: MedInstructAlignFormattedRow = dict(messages=[])
+
+    for col in dataset_row.keys():
+        formatted_row['messages'].append({"role": col, "content": dataset_row[str(col)]})
+
+    return formatted_row
+
+
 def format_dataset(dataset: Dataset) -> List[dict]:
-    dataset = dataset.rename_columns({"system": "instruction"})
+    if "system" in dataset.column_names and "instruction" not in dataset.column_names:
+        dataset = dataset.rename_columns({"system": "instruction"})
+
+    to_remove = dataset.column_names
+
+    dataset = dataset.map(_format, remove_columns=dataset.column_names, num_proc=4)
+
     formatted: List[dict] = dataset.to_list()
 
     return formatted
