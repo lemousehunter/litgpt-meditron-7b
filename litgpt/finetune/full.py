@@ -318,7 +318,14 @@ def validate(fabric: L.Fabric, model: GPT, val_dataloader: DataLoader, eval: Eva
 def generate_example(fabric: L.Fabric, model: GPT, tokenizer: Tokenizer, eval: EvalArgs, data: DataModule):
     instruction = "Recommend a movie for me to watch during the weekend and explain the reason."
     fabric.print(instruction)
-    prompt = data.prompt_style.apply(instruction)
+
+    example = {
+        'instruction': 'You are an expert movie recommender.',
+        'input': instruction
+    }
+
+    prompt = data.prompt_style.apply(prompt=example["instruction"], **example)
+    
     encoded = tokenizer.encode(prompt, device=fabric.device)
     model.eval()
 
