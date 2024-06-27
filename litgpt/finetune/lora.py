@@ -66,8 +66,8 @@ def setup(
     train: TrainArgs = TrainArgs(
         save_interval=1000,
         log_interval=1,
-        global_batch_size=64,
-        micro_batch_size=4,
+        global_batch_size=32,
+        micro_batch_size=1,
         lr_warmup_steps=100,
         epochs=5,
         max_seq_length=None,
