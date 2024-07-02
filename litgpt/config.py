@@ -1659,7 +1659,7 @@ meditron = [
     dict(
         name="epflllm_meditron-7b-base",
         hf_config=dict(org="lemousehunter", name="epflllm_meditron-7b-base"),
-        vocab_size=32017,
+        vocab_size=32019,
         padding_multiple=64,
         n_layer=32,
         rotary_percentage=1.0,
@@ -1668,6 +1668,8 @@ meditron = [
         norm_class_name="RMSNorm",
         mlp_class_name="LLaMAMLP",
         intermediate_size=11008,
+        n_head=32,
+        n_embd=4096
     )
 ]
 
