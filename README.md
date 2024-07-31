@@ -1,7 +1,7 @@
 <div align="center">
 
 
-# ⚡ LitGPT
+# ⚡ LitGPT with support for Meditron-7b
 
 **Load, finetune, pretrain, evaluate, and deploy 20+ LLMs on your own data**
 
